@@ -15,7 +15,7 @@ module Fluent
 
       config_param :facility, :string, :default => "user"
       config_param :severity, :string, :default => "notice"
-      config_param :program, :string, :default => "fluentd"
+#      config_param :program, :string, :default => "fluentd"
 
       config_param :protocol, :enum, list: [:udp, :tcp], :default => :udp
       config_param :tls, :bool, :default => false
@@ -56,7 +56,8 @@ module Fluent
           raise ConfigError, "formatter_type must be text_per_line formatter"
         end
 
-        validate_target = "host=#{@host}/host_with_port=#{@host_with_port}/hostname=#{@hostname}/facility=#{@facility}/severity=#{@severity}/program=#{@program}"
+#        validate_target = "host=#{@host}/host_with_port=#{@host_with_port}/hostname=#{@hostname}/facility=#{@facility}/severity=#{@severity}/program=#{@program}"
+        validate_target = "host=#{@host}/host_with_port=#{@host_with_port}/hostname=#{@hostname}/facility=#{@facility}/severity=#{@severity}"
         placeholder_validate!(:remote_syslog, validate_target)
         @senders = []
       end
@@ -93,10 +94,11 @@ module Fluent
 
         facility = extract_placeholders(@facility, chunk.metadata)
         severity = extract_placeholders(@severity, chunk.metadata)
-        program = extract_placeholders(@program, chunk.metadata)
+#        program = extract_placeholders(@program, chunk.metadata)
         hostname = extract_placeholders(@hostname, chunk.metadata)
 
-        packet_options = {facility: facility, severity: severity, program: program}
+        #packet_options = {facility: facility, severity: severity, program: program}
+        packet_options = {facility: facility, severity: severity}
         packet_options[:hostname] = hostname unless hostname.empty?
 
         begin
@@ -128,8 +130,8 @@ module Fluent
             keep_alive: @keep_alive,
             keep_alive_idle: @keep_alive_idle,
             keep_alive_cnt: @keep_alive_cnt,
-            keep_alive_intvl: @keep_alive_intvl,
-            program: @program,
+            keep_alive_intvl: @keep_alive_intvl
+            #program: @program,
           }
           options[:ca_file] = @ca_file if @ca_file
           options[:verify_mode] = @verify_mode if @verify_mode
@@ -142,8 +144,8 @@ module Fluent
           sender = RemoteSyslogSender::UdpSender.new(
             host,
             port,
-            whinyerrors: true,
-            program: @program,
+            whinyerrors: true
+            #program: @program,
           )
         end
         @senders << sender
